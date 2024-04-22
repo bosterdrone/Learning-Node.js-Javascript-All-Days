@@ -1,1 +1,30 @@
-idk
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const {EmbedBuilder, PermissionsBitField} = require('discord.js');
+
+module.exports = {
+    data: new SlashCommandBuilder()
+    .setName('clear')
+    .setDescription('deletes messages')
+    .addIntegerOption(option => option.setName('amount').setDescription('the amount').setMinValue(1).setMaxValue(100).setRequired(true)),
+    async execute (interaction, client) {
+        
+        const amount = interaction.options.getInteger('amount');
+        const channel = interaction.channel;
+        
+        if (!interaction.member.permissions.has(PermissionsBitField.ManageMessages)) return await interaction.reply({ content: "you do not have perms buddy", ephemeral: true })
+        if (!amount) return await interaction.reply({ content: "please put amount", ephemeral: true });
+        if (amount > 100 || amount < 1) return await interaction.reply({ content: "please Select number between 100 and 1", ephemeral: true });
+        
+        await interaction.channel.bulkDelete(amount).catch(err => {
+            return;
+        });
+        
+        const embed = new EmbedBuilder()
+        .setColor("Blue")
+        .setDescription(`<:greenTick:1231645958106779689> Deleted **${amount}** messages`)
+        
+        await interaction.reply({ embeds: [embed] }).catch(err => {
+            return;
+        })
+    }
+}
